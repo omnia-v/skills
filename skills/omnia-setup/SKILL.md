@@ -1,0 +1,116 @@
+---
+name: omnia-setup
+description: Wire this repository to Omnia (AI gateway + judge-calibrated evals). Inspects the repo, picks the right integration door (gateway, BYOK, OpenTelemetry env vars, or the tracing SDK), makes the edits, and verifies with a receipt. Use when the user wants to connect an app to Omnia, capture LLM traffic for evaluation, or compare models on production traffic.
+---
+
+# Omnia setup
+
+You are integrating this repository with Omnia (an OpenAI-compatible AI
+gateway with judge calibration). Ask the user only for the API key if it is
+not already in the environment as `OMNIA_API_KEY`.
+
+The canonical, always-current version of these instructions is:
+
+```
+curl -fsSL https://platform.omnia-voice.com/agent-setup.md
+```
+
+If you can fetch it, prefer it over the copy below (this skill may lag it).
+
+## 1. Inspect the repo, then pick ONE door
+
+Look at which LLM provider(s) and frameworks this repo uses, then choose:
+
+| This repo… | Door |
+| --- | --- |
+| Calls an OpenAI-compatible API and can use Omnia's model catalog | **A — gateway** |
+| Uses a closed provider (OpenAI / Anthropic / Gemini / xAI / Mistral) it must KEEP | **B — gateway with the provider's own key (BYOK)**, or **C/D** if adding a request-path hop is unacceptable |
+| Already emits OpenTelemetry traces (e.g. Vercel AI SDK telemetry, existing OTel SDK) | **C — OTLP env vars** |
+| No OTel, and inference must not move | **D — Omnia tracing SDK** |
+
+Whichever door: never hardcode the key. Add `OMNIA_API_KEY` to the
+environment/secrets the same way this repo handles its existing provider keys,
+and add it to `.env.example` if one exists.
+
+## Door A — route inference through the gateway
+
+- Point the OpenAI-compatible client at Omnia:
+  - base URL: `https://gateway.omnia-voice.com/v1`
+  - API key: from `OMNIA_API_KEY` (starts with `sk_`)
+- Model names pass through unchanged (e.g. `openai/gpt-oss-120b`).
+- If the code sets per-request headers, add on inference calls:
+  - `X-Omnia-Tag`: short stable label for this traffic
+    (`[a-zA-Z0-9_:.-]`, max 64 chars). One tag per distinct kind of traffic —
+    tags become evaluation populations; mixing unrelated traffic blends them.
+  - `X-Omnia-Trace-Id`: only if the repo has a per-run id and makes multiple
+    model calls per run — same id on every call of one run. Skip it if W3C
+    `traceparent` propagation is already active; the gateway reads that.
+
+## Door B — keep the current model, via BYOK
+
+The repo keeps its exact provider and model; only the base URL changes. The
+provider bills the customer's own provider key; Omnia bills zero for those
+tokens and captures the traffic for measurement.
+
+- Ask the user to paste the provider's API key into **Omnia → Settings →
+  Workspace → Provider keys**. Do NOT handle that key yourself, and never put
+  it in the repo.
+- Point the client at `https://gateway.omnia-voice.com/v1` with
+  `OMNIA_API_KEY` (as Door A), and prefix the model with its provider:
+  `openai/gpt-4o`, `anthropic/claude-sonnet-4-5`, `gemini/gemini-2.5-pro`.
+- Add the same `X-Omnia-Tag` / trace headers as Door A.
+- A gateway 401 `provider_key_rejected` means the provider key in workspace
+  settings is bad/rotated — that is the user's to fix; say so.
+
+## Door C — already speaking OpenTelemetry: three env vars
+
+No packages, no code. Add to the deployment environment:
+
+```
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=https://gateway.omnia-voice.com/v1/traces
+OTEL_EXPORTER_OTLP_TRACES_HEADERS=Authorization=Bearer ${OMNIA_API_KEY}
+OTEL_RESOURCE_ATTRIBUTES=omnia.tag=<short-stable-label>
+```
+
+Vercel AI SDK repos: also ensure telemetry is on
+(`experimental_telemetry: { isEnabled: true }`). Omnia ingests OTLP/HTTP in
+protobuf or JSON and understands the official `gen_ai.*` conventions plus the
+Traceloop, Vercel `ai.*`, and OpenInference attribute dialects.
+
+## Door D — no OTel yet: the Omnia tracing SDK
+
+One package, one line, standard OpenTelemetry underneath (eject documented —
+removing it later loses nothing):
+
+- Node (CommonJS): `npm install @omnia/tracing`, then
+  `require("@omnia/tracing").setup()` once at startup, BEFORE any LLM client
+  is constructed.
+- Node (pure ESM): same install, no code — start the app with
+  `node --import @omnia/tracing/register`.
+- Python: `pip install omnia-tracing`, then
+  `from omnia_tracing import setup; setup()` at startup before clients.
+- Set `OMNIA_API_KEY` and `OMNIA_TAG=<short-stable-label>` in the environment.
+- Captures OpenAI, Anthropic, Gemini (Python), and LangChain automatically —
+  only libraries actually installed are instrumented.
+
+For Doors C and D, note in your summary: model-call CONTENT
+(prompts/completions) is stored only if the workspace has request logging
+enabled; span structure is kept either way. Batches are capped at 4 MB — keep
+the exporter's `max_export_batch_size` default.
+
+## 2. Verify — never report success without this receipt
+
+```
+OMNIA_API_KEY=$OMNIA_API_KEY sh -c "$(curl -fsSL https://platform.omnia-voice.com/setup.sh)"
+```
+
+It proves the key works, reports logging/traffic/grades/judge progress, and
+names the ONE next step. For Doors A/B it makes one tiny test completion
+(fractions of a cent); add `-- --no-inference` if this key must not spend.
+
+## 3. Report
+
+Tell the user: which door you chose and why, every file you changed, the tag
+you picked, and the setup check's reported "next step". Do not print the API
+key anywhere. If anything failed, say exactly which step and stop rather than
+improvising around it.
