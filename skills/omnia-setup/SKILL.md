@@ -92,6 +92,21 @@ removing it later loses nothing):
 - Set `OMNIA_API_KEY` and `OMNIA_TAG=<short-stable-label>` in the environment.
 - Captures OpenAI, Anthropic, Gemini (Python), and LangChain automatically —
   only libraries actually installed are instrumented.
+- **If the registry doesn't have the package yet** (rollout, or a registry
+  outage): do NOT stop — wire the identical setup from standard ecosystem
+  packages. Node: install `@opentelemetry/sdk-node`,
+  `@opentelemetry/exporter-trace-otlp-proto`, and the
+  `@traceloop/instrumentation-{openai,anthropic,langchain}` packages, then
+  start a `NodeSDK` with an `OTLPTraceExporter` pointed at
+  `https://gateway.omnia-voice.com/v1/traces` with header
+  `Authorization: Bearer ${OMNIA_API_KEY}` and
+  `OTEL_RESOURCE_ATTRIBUTES=omnia.tag=<label>`. Python: install
+  `opentelemetry-sdk`, `opentelemetry-exporter-otlp-proto-http`, and the
+  `opentelemetry-instrumentation-{openai,anthropic,google-generativeai,langchain}`
+  packages, build a `TracerProvider` + `BatchSpanProcessor(OTLPSpanExporter)`
+  with the same endpoint/header, and call each installed library's
+  `Instrumentor().instrument(tracer_provider=...)`. Identical spans either
+  way — the package is convenience, not a dependency.
 
 For Doors C and D, note in your summary: model-call CONTENT
 (prompts/completions) is stored only if the workspace has request logging
