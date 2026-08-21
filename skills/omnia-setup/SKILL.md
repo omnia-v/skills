@@ -82,11 +82,11 @@ Traceloop, Vercel `ai.*`, and OpenInference attribute dialects.
 One package, one line, standard OpenTelemetry underneath (eject documented —
 removing it later loses nothing):
 
-- Node (CommonJS): `npm install @omnia/tracing`, then
-  `require("@omnia/tracing").setup()` once at startup, BEFORE any LLM client
+- Node (CommonJS): `npm install @omnia-voice/tracing`, then
+  `require("@omnia-voice/tracing").setup()` once at startup, BEFORE any LLM client
   is constructed.
 - Node (pure ESM): same install, no code — start the app with
-  `node --import @omnia/tracing/register`.
+  `node --import @omnia-voice/tracing/register`.
 - Python: `pip install omnia-tracing`, then
   `from omnia_tracing import setup; setup()` at startup before clients.
 - Set `OMNIA_API_KEY` and `OMNIA_TAG=<short-stable-label>` in the environment.
