@@ -1,8 +1,8 @@
-# Omnia agent skills
+# errorbar agent skills
 
 Skills that let a coding agent (Claude Code, Cursor, or anything that reads
 the [SKILL.md convention](https://code.claude.com/docs/en/skills)) integrate a
-repository with [Omnia](https://platform.omnia-voice.com) — the AI gateway
+repository with [errorbar](https://platform.omnia-voice.com) — the AI gateway
 with judge-calibrated evals.
 
 ## Install
@@ -19,7 +19,7 @@ Inspects your repo and wires ONE of four integration doors:
 
 | Door | For | Change |
 | --- | --- | --- |
-| **A — Gateway** | OpenAI-compatible apps using Omnia's catalog | base-URL swap |
+| **A — Gateway** | OpenAI-compatible apps using errorbar's catalog | base-URL swap |
 | **B — BYOK** | Apps keeping GPT / Claude / Gemini | base-URL swap + provider key in workspace settings; provider keeps billing you |
 | **C — OpenTelemetry** | Apps already emitting OTel | three env vars, zero code |
 | **D — Tracing SDK** | No OTel, inference stays put | `@omnia-voice/tracing` / `omnia-tracing`, one line |

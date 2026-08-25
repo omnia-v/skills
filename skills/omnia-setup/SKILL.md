@@ -1,11 +1,11 @@
 ---
 name: omnia-setup
-description: Wire this repository to Omnia (AI gateway + judge-calibrated evals). Inspects the repo, picks the right integration door (gateway, BYOK, OpenTelemetry env vars, or the tracing SDK), makes the edits, and verifies with a receipt. Use when the user wants to connect an app to Omnia, capture LLM traffic for evaluation, or compare models on production traffic.
+description: Wire this repository to errorbar (AI gateway + judge-calibrated evals). Inspects the repo, picks the right integration door (gateway, BYOK, OpenTelemetry env vars, or the tracing SDK), makes the edits, and verifies with a receipt. Use when the user wants to connect an app to errorbar, capture LLM traffic for evaluation, or compare models on production traffic.
 ---
 
-# Omnia setup
+# errorbar setup
 
-You are integrating this repository with Omnia (an OpenAI-compatible AI
+You are integrating this repository with errorbar (an OpenAI-compatible AI
 gateway with judge calibration). Ask the user only for the API key if it is
 not already in the environment as `OMNIA_API_KEY`.
 
@@ -23,10 +23,10 @@ Look at which LLM provider(s) and frameworks this repo uses, then choose:
 
 | This repo… | Door |
 | --- | --- |
-| Calls an OpenAI-compatible API and can use Omnia's model catalog | **A — gateway** |
+| Calls an OpenAI-compatible API and can use errorbar's model catalog | **A — gateway** |
 | Uses a closed provider (OpenAI / Anthropic / Gemini / xAI / Mistral) it must KEEP | **B — gateway with the provider's own key (BYOK)**, or **C/D** if adding a request-path hop is unacceptable |
 | Already emits OpenTelemetry traces (e.g. Vercel AI SDK telemetry, existing OTel SDK) | **C — OTLP env vars** |
-| No OTel, and inference must not move | **D — Omnia tracing SDK** |
+| No OTel, and inference must not move | **D — errorbar tracing SDK** |
 
 Whichever door: never hardcode the key. Add `OMNIA_API_KEY` to the
 environment/secrets the same way this repo handles its existing provider keys,
@@ -34,7 +34,7 @@ and add it to `.env.example` if one exists.
 
 ## Door A — route inference through the gateway
 
-- Point the OpenAI-compatible client at Omnia:
+- Point the OpenAI-compatible client at errorbar:
   - base URL: `https://gateway.omnia-voice.com/v1`
   - API key: from `OMNIA_API_KEY` (starts with `sk_`)
 - Model names pass through unchanged (e.g. `openai/gpt-oss-120b`).
@@ -49,10 +49,10 @@ and add it to `.env.example` if one exists.
 ## Door B — keep the current model, via BYOK
 
 The repo keeps its exact provider and model; only the base URL changes. The
-provider bills the customer's own provider key; Omnia bills zero for those
+provider bills the customer's own provider key; errorbar bills zero for those
 tokens and captures the traffic for measurement.
 
-- Ask the user to paste the provider's API key into **Omnia → Settings →
+- Ask the user to paste the provider's API key into **errorbar → Settings →
   Workspace → Provider keys**. Do NOT handle that key yourself, and never put
   it in the repo.
 - Point the client at `https://gateway.omnia-voice.com/v1` with
@@ -73,11 +73,11 @@ OTEL_RESOURCE_ATTRIBUTES=omnia.tag=<short-stable-label>
 ```
 
 Vercel AI SDK repos: also ensure telemetry is on
-(`experimental_telemetry: { isEnabled: true }`). Omnia ingests OTLP/HTTP in
+(`experimental_telemetry: { isEnabled: true }`). errorbar ingests OTLP/HTTP in
 protobuf or JSON and understands the official `gen_ai.*` conventions plus the
 Traceloop, Vercel `ai.*`, and OpenInference attribute dialects.
 
-## Door D — no OTel yet: the Omnia tracing SDK
+## Door D — no OTel yet: the errorbar tracing SDK
 
 One package, one line, standard OpenTelemetry underneath (eject documented —
 removing it later loses nothing):
