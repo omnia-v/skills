@@ -123,6 +123,21 @@ It proves the key works, reports logging/traffic/grades/judge progress, and
 names the ONE next step. For Doors A/B it makes one tiny test completion
 (fractions of a cent); add `-- --no-inference` if this key must not spend.
 
+## Optional: the platform as tools (MCP)
+
+If the user asks for their agent to run bake-offs, read gates, or inspect
+judge alignment from the editor, register the errorbar MCP server — every
+platform API operation becomes a tool:
+
+```
+claude mcp add errorbar -e OMNIA_API_KEY=$OMNIA_API_KEY -- npx -y @omnia-voice/mcp
+```
+
+(Any MCP client: command `npx`, args `["-y", "@omnia-voice/mcp"]`, env
+`OMNIA_API_KEY`.) Prefer a key with only the scopes the agent needs; add
+`--read-only` or `--no-spend` to keep it from starting billable work. Only on
+request — it is not part of capturing traffic.
+
 ## 3. Report
 
 Tell the user: which door you chose and why, every file you changed, the tag
