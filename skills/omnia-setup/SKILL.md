@@ -35,7 +35,7 @@ and add it to `.env.example` if one exists.
 ## Door A — route inference through the gateway
 
 - Point the OpenAI-compatible client at errorbar:
-  - base URL: `https://gateway.omnia-voice.com/v1`
+  - base URL: `https://gateway.errorbar.ai/v1`
   - API key: from `OMNIA_API_KEY` (starts with `sk_`)
 - Model names pass through unchanged (e.g. `openai/gpt-oss-120b`).
 - If the code sets per-request headers, add on inference calls:
@@ -55,7 +55,7 @@ tokens and captures the traffic for measurement.
 - Ask the user to paste the provider's API key into **errorbar → Settings →
   Workspace → Provider keys**. Do NOT handle that key yourself, and never put
   it in the repo.
-- Point the client at `https://gateway.omnia-voice.com/v1` with
+- Point the client at `https://gateway.errorbar.ai/v1` with
   `OMNIA_API_KEY` (as Door A), and prefix the model with its provider:
   `openai/gpt-4o`, `anthropic/claude-sonnet-4-5`, `gemini/gemini-2.5-pro`.
 - Add the same `X-Omnia-Tag` / trace headers as Door A.
@@ -67,7 +67,7 @@ tokens and captures the traffic for measurement.
 No packages, no code. Add to the deployment environment:
 
 ```
-OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=https://gateway.omnia-voice.com/v1/traces
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=https://gateway.errorbar.ai/v1/traces
 OTEL_EXPORTER_OTLP_TRACES_HEADERS=Authorization=Bearer ${OMNIA_API_KEY}
 OTEL_RESOURCE_ATTRIBUTES=omnia.tag=<short-stable-label>
 ```
@@ -98,7 +98,7 @@ removing it later loses nothing):
   `@opentelemetry/exporter-trace-otlp-proto`, and the
   `@traceloop/instrumentation-{openai,anthropic,langchain}` packages, then
   start a `NodeSDK` with an `OTLPTraceExporter` pointed at
-  `https://gateway.omnia-voice.com/v1/traces` with header
+  `https://gateway.errorbar.ai/v1/traces` with header
   `Authorization: Bearer ${OMNIA_API_KEY}` and
   `OTEL_RESOURCE_ATTRIBUTES=omnia.tag=<label>`. Python: install
   `opentelemetry-sdk`, `opentelemetry-exporter-otlp-proto-http`, and the
