@@ -82,13 +82,13 @@ Traceloop, Vercel `ai.*`, and OpenInference attribute dialects.
 One package, one line, standard OpenTelemetry underneath (eject documented —
 removing it later loses nothing):
 
-- Node (CommonJS): `npm install @omnia-voice/tracing`, then
-  `require("@omnia-voice/tracing").setup()` once at startup, BEFORE any LLM client
+- Node (CommonJS): `npm install @error-bar/tracing`, then
+  `require("@error-bar/tracing").setup()` once at startup, BEFORE any LLM client
   is constructed.
 - Node (pure ESM): same install, no code — start the app with
-  `node --import @omnia-voice/tracing/register`.
-- Python: `pip install omnia-tracing`, then
-  `from omnia_tracing import setup; setup()` at startup before clients.
+  `node --import @error-bar/tracing/register`.
+- Python: `pip install errorbar-tracing`, then
+  `from errorbar_tracing import setup; setup()` at startup before clients.
 - Set `OMNIA_API_KEY` and `OMNIA_TAG=<short-stable-label>` in the environment.
 - Captures OpenAI, Anthropic, Gemini (Python), and LangChain automatically —
   only libraries actually installed are instrumented.

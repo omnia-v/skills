@@ -22,7 +22,7 @@ Inspects your repo and wires ONE of four integration doors:
 | **A — Gateway** | OpenAI-compatible apps using errorbar's catalog | base-URL swap |
 | **B — BYOK** | Apps keeping GPT / Claude / Gemini | base-URL swap + provider key in workspace settings; provider keeps billing you |
 | **C — OpenTelemetry** | Apps already emitting OTel | three env vars, zero code |
-| **D — Tracing SDK** | No OTel, inference stays put | `@omnia-voice/tracing` / `omnia-tracing`, one line |
+| **D — Tracing SDK** | No OTel, inference stays put | `@error-bar/tracing` / `errorbar-tracing`, one line |
 
 Every run ends with the setup check — a receipt proving traffic actually
 lands, not a claim that it should. The always-current instruction source is
