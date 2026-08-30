@@ -159,7 +159,14 @@ with `Authorization: Bearer $ERRORBAR_API_KEY`
    recent traffic as the incumbent, its stored answers as the baseline, and
    the cheapest model of each family as candidates. Report the verdict per
    candidate (verified-better / tied-but-cheaper / inconclusive / worse) with
-   the win-rate interval — never recommend on a point estimate.
+   the win-rate interval — never recommend on a point estimate. Say that the
+   win rate is the judge's PRINTED number: it reads closer to 50/50 than a
+   human panel would, and its interval cannot see that. If the call matters,
+   ask the user to label pairs in the run's test cases (dashboard → the run →
+   "View and label the test cases"; or `POST /v1/evals/{id}/pair_labels`);
+   from 30 labelled pairs the run reports a corrected win rate and
+   `GET /v1/evals/{id}/pairwise` shows the judge's spec sheet (first-slot
+   preference, tie rate, swap consistency) — report those alongside.
 3. Create one judge: `POST /v1/criteria` with ONE binary question about the
    single quality property that matters most in this codebase. Not a rubric,
    not a score.
