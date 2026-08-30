@@ -135,7 +135,11 @@ claude mcp add errorbar -e ERRORBAR_API_KEY=$ERRORBAR_API_KEY -- npx -y @error-b
 ```
 
 (Any MCP client: command `npx`, args `["-y", "@error-bar/mcp"]`, env
-`ERRORBAR_API_KEY`.) Prefer a key with only the scopes the agent needs; add
+`ERRORBAR_API_KEY`.) Prefer a key with only the scopes the agent needs. Add
+`--profile monitor` (read-only: judge trust, alerts, evals), `--profile
+release` (gate on the interval, aliases) or `--profile setup` instead of the
+full tool set — each is 8–12 tools and includes the task-shaped ones
+(`screen_my_traffic`, `is_my_judge_trustworthy`, `can_i_ship`). Add
 `--read-only` or `--no-spend` to keep it from starting billable work. Only on
 request — it is not part of capturing traffic.
 
