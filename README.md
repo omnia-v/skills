@@ -2,18 +2,18 @@
 
 Skills that let a coding agent (Claude Code, Cursor, or anything that reads
 the [SKILL.md convention](https://code.claude.com/docs/en/skills)) integrate a
-repository with [errorbar](https://platform.omnia-voice.com) — the AI gateway
-with judge-calibrated evals.
+repository with [errorbar](https://www.errorbar.ai) — LLM quality
+measurement on your own traffic: calibrated judges, gates, monitoring.
 
 ## Install
 
 ```bash
-npx skills add omnia-v/skills --skill omnia-setup
+npx skills add omnia-v/skills --skill errorbar-setup
 ```
 
-Or manually: copy `skills/omnia-setup/` into your repo's `.claude/skills/`.
+Or manually: copy `skills/errorbar-setup/` into your repo's `.claude/skills/`.
 
-## What `omnia-setup` does
+## What `errorbar-setup` does
 
 Inspects your repo and wires ONE of four integration doors:
 
@@ -26,12 +26,16 @@ Inspects your repo and wires ONE of four integration doors:
 
 Every run ends with the setup check — a receipt proving traffic actually
 lands, not a claim that it should. The always-current instruction source is
-[`agent-setup.md`](https://platform.omnia-voice.com/agent-setup.md); the skill
+[`agent-setup.md`](https://www.errorbar.ai/agent-setup.md); the skill
 prefers it when it can fetch it, so installed copies don't rot.
+
+## Renamed
+
+The skill was `omnia-setup` until 2026-08-30. Re-run the install command above to pick up `errorbar-setup`; the old copy keeps working but no longer receives updates.
 
 ## Privacy
 
 The skill never handles provider API keys (Door B routes them to workspace
-settings, entered by the human), never prints `OMNIA_API_KEY`, and model-call
+settings, entered by the human), never prints `ERRORBAR_API_KEY`, and model-call
 content is stored only if the workspace has request logging enabled — span
 structure otherwise.
