@@ -139,7 +139,35 @@ claude mcp add errorbar -e ERRORBAR_API_KEY=$ERRORBAR_API_KEY -- npx -y @error-b
 `--read-only` or `--no-spend` to keep it from starting billable work. Only on
 request — it is not part of capturing traffic.
 
-## 3. Report
+## 3. After traffic flows
+
+Do these in order, each only once the previous one has something to work on.
+Every call below is the management API at `https://gateway.errorbar.ai/v1`
+with `Authorization: Bearer $ERRORBAR_API_KEY`
+(reference: https://docs.errorbar.ai/api-reference/introduction).
+
+1. If the setup check reported request logging OFF, ask the user to turn it
+   on (errorbar → Settings → Workspace → Request logging). Without it only
+   structure is kept and there is nothing to grade; do not try to change
+   this setting yourself.
+2. Once real traffic has been logged, run a screening: `POST /v1/evals` with
+   `{ "screening": true }` and nothing else. It takes the dominant model in
+   recent traffic as the incumbent, its stored answers as the baseline, and
+   the cheapest model of each family as candidates. Report the verdict per
+   candidate (verified-better / tied-but-cheaper / inconclusive / worse) with
+   the win-rate interval — never recommend on a point estimate.
+3. Create one judge: `POST /v1/criteria` with ONE binary question about the
+   single quality property that matters most in this codebase. Not a rubric,
+   not a score.
+4. Once about 30 real exchanges are graded (the user's job, in the dashboard;
+   tell them when the queue is ready), calibrate it:
+   `POST /v1/criteria/{id}/align`. Report the true-positive rate, the
+   true-negative rate, whether the judge is trustworthy — and if not, how many
+   more grades of which class it needs.
+
+Do not report any pass rate without the interval around it.
+
+## 4. Report
 
 Tell the user: which door you chose and why, every file you changed, the tag
 you picked, and the setup check's reported "next step". Do not print the API
